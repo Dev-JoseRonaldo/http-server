@@ -21,48 +21,25 @@ public class ServerListenerThread extends Thread{
     @Override
     public void run() {
         try {
+            while (serverSocket.isBound() && !serverSocket.isClosed()) {
+                Socket socket = serverSocket.accept(); // Accepts a client connection
 
-            Socket socket = serverSocket.accept(); // Accepts a client connection
+                System.out.println("Connection accepted: " + socket.getInetAddress());
 
-            InputStream inputStream = socket.getInputStream(); // Get input stream from the client
-            OutputStream outputStream = socket.getOutputStream(); // Get output stream to respond to the client
+                HttpConnectionWorkerThread workerThread = new HttpConnectionWorkerThread(socket);
+                workerThread.start();
 
-            // HTML content to be sent in the HTTP response body
-            String html =
-                    "<!DOCTYPE html>\n" +
-                            "<html lang=\"en\">\n" +
-                            "<head>\n" +
-                            "    <meta charset=\"UTF-8\">\n" +
-                            "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                            "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
-                            "    <title>HTTP Server</title>\n" +
-                            "</head>\n" +
-                            "<body>\n" +
-                            "    <h1>Welcome to the HTTP server!</h1>\n" +
-                            "    <p>This is a simple HTTP server.</p>\n" +
-                            "</body>\n" +
-                            "</html>";
-
-            final String CRLF = "\n\r"; // ASCII = 13 and 10
-
-            // HTTP response
-            String response =
-                    "HTTP/1.1 200 OK" + CRLF +  // Status Line : HTTP_VERSION RESPONSE_CODE RESPONSE_MESSAGE
-                            "Content-Length: " + html.getBytes().length + CRLF + // HEADER
-                            CRLF +
-                            html + // BODY
-                            CRLF + CRLF;
-
-            outputStream.write(response.getBytes()); // Send the response to the client
-
-            // Closing streams and socket after response is sent
-            inputStream.close();
-            outputStream.close();
-            socket.close();
-            serverSocket.close();
+            }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            System.out.println("Problem with settings socket -> " + e.toString());
+        } finally {
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException ignored) {}
+            }
         }
     }
 }
