@@ -11,7 +11,7 @@ public class HttpParser {
     private static final int CR = 0x0D; // ASCII code 13
     private static final int LF = 0x0A; // ASCII code 10
 
-    public HttpRequest parserHttpRequest(InputStream inputStream) {
+    public HttpRequest parserHttpRequest(InputStream inputStream) throws HttpParsingException {
         InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.US_ASCII);
 
         HttpRequest request = new HttpRequest();
@@ -19,7 +19,7 @@ public class HttpParser {
         try {
             parseRequestLine(reader, request);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         parseHeaders(reader, request);
         parseBody(reader, request);
@@ -27,7 +27,7 @@ public class HttpParser {
         return request;
     }
 
-    private void parseRequestLine(InputStreamReader reader, HttpRequest request) throws IOException {
+    private void parseRequestLine(InputStreamReader reader, HttpRequest request) throws IOException, HttpParsingException {
         StringBuffer processingDataBuffer = new StringBuffer();
 
         boolean methodParsed = false;
