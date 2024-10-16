@@ -16,9 +16,17 @@ public class HttpConnectionWorkerThread extends Thread{
     public void run() {
         InputStream inputStream = null;
         OutputStream outputStream = null;
+
         try {
             inputStream = socket.getInputStream(); // Get input stream from the client
             outputStream = socket.getOutputStream(); // Get output stream to respond to the client
+
+//            // Request Logger
+//            int _byte;
+//
+//            while ((_byte = inputStream.read()) >= 0) {
+//                System.out.print((char) _byte);
+//            }
 
             // HTML content to be sent in the HTTP response body
             String html =
